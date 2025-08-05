@@ -1,0 +1,40 @@
+# Get all events
+curl http://localhost:8080/api/v1/events
+
+
+# Create an event
+curl http://localhost:8080/api/v1/events \
+    --include \
+    --header "Content-Type: application/json" \
+    --request "POST" \
+    --data '{"name": "Event 3","description": "Sports event","date": "2025-05-31", "location": "Bangalore"}'
+
+
+# Get an event
+curl http://localhost:8080/api/v1/events/3
+
+
+# Update an event
+curl http://localhost:8080/api/v1/events/3 \
+    --include \
+    --header "Content-Type: application/json" \
+    --request "PUT" \
+    --data '{"name": "Event 3","description": "Sports event updated", "date": "2025-05-31", "location": "Pune"}'
+
+
+# Delete an event
+curl http://localhost:8080/api/v1/events/3 --request "DELETE"
+
+
+# Create an event with invalid data
+curl http://localhost:8080/api/v1/events \
+    --include \
+    --header "Content-Type: application/json" \
+    --request "POST" \
+    --data '{"name": "Event 4","description": "Wedding event", "location": "Mumbai"}'
+
+curl http://localhost:8080/api/v1/events \
+    --include \
+    --header "Content-Type: application/json" \
+    --request "POST" \
+    --data '{"name": "Event 4","description": "Wedding", "date": "2025-05-31", "location": "Mumbai"}'
