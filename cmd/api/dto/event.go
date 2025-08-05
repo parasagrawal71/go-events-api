@@ -6,4 +6,5 @@ type Event struct {
 	Description string `json:"description" binding:"required,min=10"`
 	Date        string `json:"date" binding:"required"`
 	Location    string `json:"location" binding:"required"`
+	OwnerID     int    `json:"owner_id"` // todo: Should be foreign relation
 }

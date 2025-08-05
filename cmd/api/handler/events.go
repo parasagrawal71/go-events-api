@@ -1,6 +1,7 @@
 package apiHandler
 
 import (
+	appContext "go-events-api/cmd/api/context"
 	"go-events-api/cmd/api/dto"
 	"net/http"
 	"strconv"
@@ -16,6 +17,7 @@ var events []dto.Event = []dto.Event{
 		Description: "Description 1",
 		Date:        "2023-01-01",
 		Location:    "Location 1",
+		OwnerID:     1,
 	},
 	{
 		ID:          2,
@@ -23,6 +25,7 @@ var events []dto.Event = []dto.Event{
 		Description: "Description 2",
 		Date:        "2023-02-01",
 		Location:    "Location 2",
+		OwnerID:     1,
 	},
 }
 
@@ -36,6 +39,8 @@ func CreateEvent(c *gin.Context) {
 	}
 
 	newEvent.ID = len(events) + 1
+	user := appContext.GetUserFromContext(c)
+	newEvent.OwnerID = user.ID
 
 	events = append(events, newEvent)
 	c.IndentedJSON(http.StatusCreated, newEvent)
@@ -74,9 +79,15 @@ func UpdateEvent(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	user := appContext.GetUserFromContext(c)
 
 	for i, event := range events {
 		if event.ID == id {
+			if event.OwnerID != user.ID {
+				c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+				return
+			}
+
 			updatedEvent.ID = id
 			events[i] = updatedEvent
 			c.IndentedJSON(http.StatusOK, updatedEvent)
@@ -93,9 +104,15 @@ func DeleteEvent(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "invalid event id"})
 		return
 	}
+	user := appContext.GetUserFromContext(c)
 
 	for i, event := range events {
 		if event.ID == id {
+			if event.OwnerID != user.ID {
+				c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+				return
+			}
+
 			events = append(events[:i], events[i+1:]...)
 			c.IndentedJSON(http.StatusOK, gin.H{"message": "event deleted"})
 			return

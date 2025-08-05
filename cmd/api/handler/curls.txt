@@ -1,40 +1,75 @@
 # Get all events
-curl http://localhost:8080/api/v1/events
+curl http://localhost:8080/api/v1/events \
+    --include \
+    --header "Authorization: Bearer TOKEN"
 
 
 # Create an event
 curl http://localhost:8080/api/v1/events \
     --include \
     --header "Content-Type: application/json" \
+    --header "Authorization: Bearer TOKEN" \
     --request "POST" \
     --data '{"name": "Event 3","description": "Sports event","date": "2025-05-31", "location": "Bangalore"}'
 
 
 # Get an event
-curl http://localhost:8080/api/v1/events/3
+curl http://localhost:8080/api/v1/events/3 \
+    --include \
+    --header "Authorization: Bearer TOKEN"
 
 
 # Update an event
 curl http://localhost:8080/api/v1/events/3 \
     --include \
     --header "Content-Type: application/json" \
+    --header "Authorization: Bearer TOKEN" \
     --request "PUT" \
     --data '{"name": "Event 3","description": "Sports event updated", "date": "2025-05-31", "location": "Pune"}'
 
 
 # Delete an event
-curl http://localhost:8080/api/v1/events/3 --request "DELETE"
+curl http://localhost:8080/api/v1/events/3 --request "DELETE" \
+    --include \
+    --header "Authorization: Bearer TOKEN"
 
 
 # Create an event with invalid data
 curl http://localhost:8080/api/v1/events \
     --include \
     --header "Content-Type: application/json" \
+    --header "Authorization: Bearer TOKEN" \
     --request "POST" \
     --data '{"name": "Event 4","description": "Wedding event", "location": "Mumbai"}'
 
 curl http://localhost:8080/api/v1/events \
     --include \
     --header "Content-Type: application/json" \
+    --header "Authorization: Bearer TOKEN" \
     --request "POST" \
     --data '{"name": "Event 4","description": "Wedding", "date": "2025-05-31", "location": "Mumbai"}'
+
+curl http://localhost:8080/api/v1/events \
+    --include \
+    --header "Content-Type: application/json" \
+    --header "Authorization: Bearer TOKEN" \
+    --request "POST" \
+    --data '{"name": "Event@3","description": "Sports event","date": "2025-05-31", "location": "Bangalore"}'
+
+
+# Unauthorized requests
+curl http://localhost:8080/api/v1/events
+
+curl http://localhost:8080/api/v1/events \
+    --include \
+    --header "Authorization: TOKEN"
+
+
+****************************************************************
+
+
+# Register
+curl http://localhost:8080/api/v1/auth/register --request "POST"
+
+# Login
+curl http://localhost:8080/api/v1/auth/login --request "POST"

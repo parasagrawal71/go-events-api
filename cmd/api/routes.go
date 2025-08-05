@@ -2,6 +2,8 @@ package main
 
 import (
 	apiHandler "go-events-api/cmd/api/handler"
+	"go-events-api/cmd/api/middleware"
+	"go-events-api/cmd/api/validator"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,13 +12,20 @@ import (
 func (app *application) routes() http.Handler {
 	g := gin.Default()
 
-	v1 := g.Group("/api/v1")
+	v1OpenRoutes := g.Group("/api/v1")
 	{ // Bracket is not necessary, it's just for grouping.
-		v1.GET("/events", apiHandler.GetAllEvents)
-		v1.POST("/events", apiHandler.CreateEvent)
-		v1.GET("/events/:id", apiHandler.GetEvent)
-		v1.PUT("/events/:id", apiHandler.UpdateEvent)
-		v1.DELETE("/events/:id", apiHandler.DeleteEvent)
+		v1OpenRoutes.POST("/auth/register", apiHandler.RegisterUser)
+		v1OpenRoutes.POST("/auth/login", apiHandler.LoginUser)
+	}
+
+	v1PrivateRoutes := v1OpenRoutes.Group("/") // IMPORTANT: Grouping on top of v1OpenRoutes
+	v1PrivateRoutes.Use(middleware.AuthMiddleware())
+	{
+		v1PrivateRoutes.GET("/events", apiHandler.GetAllEvents)
+		v1PrivateRoutes.POST("/events", validator.ValidateCreateEvent(), apiHandler.CreateEvent)
+		v1PrivateRoutes.GET("/events/:id", apiHandler.GetEvent)
+		v1PrivateRoutes.PUT("/events/:id", apiHandler.UpdateEvent)
+		v1PrivateRoutes.DELETE("/events/:id", apiHandler.DeleteEvent)
 	}
 
 	return g
