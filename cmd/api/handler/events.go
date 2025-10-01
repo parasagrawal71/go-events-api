@@ -32,7 +32,7 @@ var events []dto.Event = []dto.Event{
 	},
 }
 
-// createEvent creates a new event (THIS IS NOT WORKING)
+// createEvent creates a new event
 //
 // @Summary Creates a new event
 // @Description Creates a new event
