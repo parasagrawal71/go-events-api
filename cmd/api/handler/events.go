@@ -1,36 +1,17 @@
 package apiHandler
 
+// The func names must be capital to export them
 import (
 	appContext "go-events-api/cmd/api/context"
 	"go-events-api/cmd/api/dto"
+	"go-events-api/cmd/api/models"
+	"go-events-api/cmd/api/repository"
 	"io"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
-
-// The func names must be capital to export them
-
-// TODO: Cleanup later
-var events []dto.Event = []dto.Event{
-	{
-		ID:          1,
-		Name:        "Event 1",
-		Description: "Description 1",
-		Date:        "2023-01-01",
-		Location:    "Location 1",
-		OwnerID:     1,
-	},
-	{
-		ID:          2,
-		Name:        "Event 2",
-		Description: "Description 2",
-		Date:        "2023-02-01",
-		Location:    "Location 2",
-		OwnerID:     1,
-	},
-}
 
 // createEvent creates a new event
 //
@@ -40,12 +21,11 @@ var events []dto.Event = []dto.Event{
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param event body dto.Event true "Event details"
-// @Success 201 {object} dto.Event
+// @Param event body dto.CreateEvent true "Event details"
+// @Success 201 {object} dto.CreateEvent
 // @Router /api/v1/events [post]
 func CreateEvent(c *gin.Context) {
-	var newEvent dto.Event
-
+	var newEvent dto.CreateEvent
 	if err := c.BindJSON(&newEvent); err != nil {
 		if err == io.EOF {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "request body is empty"})
@@ -55,12 +35,23 @@ func CreateEvent(c *gin.Context) {
 		return
 	}
 
-	newEvent.ID = len(events) + 1
 	user := appContext.GetUserFromContext(c)
-	newEvent.OwnerID = user.ID
 
-	events = append(events, newEvent)
-	c.IndentedJSON(http.StatusCreated, newEvent)
+	eventToCreate := models.Event{
+		Name:        newEvent.Name,
+		Description: newEvent.Description,
+		Date:        newEvent.Date,
+		Location:    newEvent.Location,
+		OwnerID:     user.ID,
+	}
+
+	createdEvent, err := repository.EventRepo.Create(&eventToCreate)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusCreated, createdEvent)
 }
 
 // getAllEvents returns all events
@@ -74,6 +65,24 @@ func CreateEvent(c *gin.Context) {
 // @Success 200 {object} []dto.Event
 // @Router /api/v1/events [get]
 func GetAllEvents(c *gin.Context) {
+	// // -- 1. Other way to get all events
+	// var events []models.Event
+	// if err := config.DB.Find(&events).Error; err != nil {
+	// 	c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// 	return
+	// }
+
+	// // -- 2. Other way to get all events
+	// var events []models.Event
+	// config.DB.Raw("SELECT * FROM events;").Scan(&events)
+
+	// Using EventRepo
+	events, err := repository.EventRepo.GetAll()
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	c.IndentedJSON(http.StatusOK, events)
 }
 
@@ -89,20 +98,20 @@ func GetAllEvents(c *gin.Context) {
 // @Success 200 {object} dto.Event
 // @Router /api/v1/events/{id} [get]
 func GetEvent(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	idParam, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "invalid event id"})
 		return
 	}
+	id := uint(idParam)
 
-	for _, event := range events {
-		if event.ID == id {
-			c.IndentedJSON(http.StatusOK, event)
-			return
-		}
+	event, err := repository.EventRepo.GetByID(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "event not found"})
+	c.IndentedJSON(http.StatusOK, event)
 }
 
 // updateEvent updates a single event
@@ -114,38 +123,49 @@ func GetEvent(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Event ID"
-// @Param event body dto.Event true "Event details"
+// @Param event body dto.UpdateEvent true "Event details"
 // @Success 200 {object} dto.Event
 // @Router /api/v1/events/{id} [put]
 func UpdateEvent(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	idParam, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "invalid event id"})
 		return
 	}
+	id := uint(idParam)
 
-	var updatedEvent dto.Event
-	if err := c.BindJSON(&updatedEvent); err != nil {
+	var eventPayload dto.UpdateEvent
+	if err := c.BindJSON(&eventPayload); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	user := appContext.GetUserFromContext(c)
 
-	for i, event := range events {
-		if event.ID == id {
-			if event.OwnerID != user.ID {
-				c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
-				return
-			}
-
-			updatedEvent.ID = id
-			events[i] = updatedEvent
-			c.IndentedJSON(http.StatusOK, updatedEvent)
-			return
-		}
+	event, err := repository.EventRepo.GetByID(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "event not found"})
+	if event.OwnerID != user.ID {
+		c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
+	}
+
+	eventToUpdate := models.Event{
+		Name:        eventPayload.Name,
+		Description: eventPayload.Description,
+		Date:        eventPayload.Date,
+		Location:    eventPayload.Location,
+	}
+
+	updatedEvent, err := repository.EventRepo.Update(id, &eventToUpdate)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, updatedEvent)
 }
 
 // deleteEvent deletes a single event
@@ -157,28 +177,33 @@ func UpdateEvent(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Event ID"
-// @Success 200 {object} gin.H
+// @Success 200 {object} dto.Event
 // @Router /api/v1/events/{id} [delete]
 func DeleteEvent(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	idParam, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "invalid event id"})
 		return
 	}
+	id := uint(idParam)
 	user := appContext.GetUserFromContext(c)
 
-	for i, event := range events {
-		if event.ID == id {
-			if event.OwnerID != user.ID {
-				c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
-				return
-			}
-
-			events = append(events[:i], events[i+1:]...)
-			c.IndentedJSON(http.StatusOK, gin.H{"message": "event deleted"})
-			return
-		}
+	event, err := repository.EventRepo.GetByID(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "event not found"})
+	if event.OwnerID != user.ID {
+		c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
+	}
+
+	deletedEvent, err := repository.EventRepo.Delete(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, deletedEvent)
 }

@@ -1,10 +1,14 @@
 package dto
 
+import "time"
+
 type Event struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name" binding:"required"`
-	Description string `json:"description" binding:"required,min=10"`
-	Date        string `json:"date" binding:"required"`
-	Location    string `json:"location" binding:"required"`
-	OwnerID     int    `json:"owner_id"` // todo: Should be foreign relation
+	ID          uint      `json:"id" `
+	Name        string    `json:"name"`
+	Description string    `json:"description" binding:"min=10"`
+	Date        string    `json:"date"`
+	Location    string    `json:"location"`
+	OwnerID     uint      `json:"owner_id"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
