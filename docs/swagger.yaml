@@ -1,6 +1,27 @@
 definitions:
+  dto.CreateEvent:
+    properties:
+      date:
+        type: string
+      description:
+        minLength: 10
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      owner_id:
+        type: integer
+    required:
+    - date
+    - description
+    - location
+    - name
+    type: object
   dto.Event:
     properties:
+      created_at:
+        type: string
       date:
         type: string
       description:
@@ -13,16 +34,65 @@ definitions:
       name:
         type: string
       owner_id:
-        description: 'todo: Should be foreign relation'
         type: integer
-    required:
-    - date
-    - description
-    - location
-    - name
+      updated_at:
+        type: string
     type: object
-  gin.H:
-    additionalProperties: {}
+  dto.LoginUser:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.RegisterUser:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  dto.UpdateEvent:
+    properties:
+      date:
+        type: string
+      description:
+        minLength: 10
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      owner_id:
+        type: integer
+    type: object
+  models.User:
+    properties:
+      created_at:
+        description: custom column name, auto-set when inserting
+        type: string
+      email:
+        type: string
+      id:
+        description: auto-increment by default
+        type: integer
+      name:
+        type: string
+      updated_at:
+        description: auto-set when inserting/updating
+        type: string
+    required:
+    - email
+    - name
     type: object
 info:
   contact: {}
@@ -30,6 +100,50 @@ info:
   title: Go Events API server
   version: "1.0"
 paths:
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Logs in a user
+      parameters:
+      - description: User details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: Logs in a user
+      tags:
+      - Auth
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user
+      parameters:
+      - description: User details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterUser'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: Registers a new user
+      tags:
+      - Auth
   /api/v1/events:
     get:
       consumes:
@@ -59,14 +173,14 @@ paths:
         name: event
         required: true
         schema:
-          $ref: '#/definitions/dto.Event'
+          $ref: '#/definitions/dto.CreateEvent'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/dto.Event'
+            $ref: '#/definitions/dto.CreateEvent'
       security:
       - BearerAuth: []
       summary: Creates a new event
@@ -89,7 +203,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gin.H'
+            $ref: '#/definitions/dto.Event'
       security:
       - BearerAuth: []
       summary: Deletes a single event by ID
@@ -132,7 +246,7 @@ paths:
         name: event
         required: true
         schema:
-          $ref: '#/definitions/dto.Event'
+          $ref: '#/definitions/dto.UpdateEvent'
       produces:
       - application/json
       responses:
