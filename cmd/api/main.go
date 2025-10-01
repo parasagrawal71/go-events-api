@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "go-events-api/docs"
 	"go-events-api/internal/env"
 	"log"
 
@@ -13,6 +14,14 @@ import (
 	*/
 	_ "github.com/joho/godotenv/autoload"
 )
+
+// @title Go Events API server
+// @version 1.0
+// @description This is a Go REST API server for an events app.
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter your JWT token in the format Bearer **&lt;token&gt;**
 
 type application struct {
 	port int

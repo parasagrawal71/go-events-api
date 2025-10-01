@@ -3,11 +3,14 @@ package apiHandler
 import (
 	appContext "go-events-api/cmd/api/context"
 	"go-events-api/cmd/api/dto"
+	"io"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
+
+// The func names must be capital to export them
 
 // TODO: Cleanup later
 var events []dto.Event = []dto.Event{
@@ -29,12 +32,26 @@ var events []dto.Event = []dto.Event{
 	},
 }
 
-// The func names must be capital to export them
+// createEvent creates a new event (THIS IS NOT WORKING)
+//
+// @Summary Creates a new event
+// @Description Creates a new event
+// @Tags Events
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param event body dto.Event true "Event details"
+// @Success 201 {object} dto.Event
+// @Router /api/v1/events [post]
 func CreateEvent(c *gin.Context) {
 	var newEvent dto.Event
 
 	if err := c.BindJSON(&newEvent); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if err == io.EOF {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "request body is empty"})
+		} else {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		}
 		return
 	}
 
@@ -46,10 +63,31 @@ func CreateEvent(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, newEvent)
 }
 
+// getAllEvents returns all events
+//
+// @Summary Returns all events
+// @Description Returns all events
+// @Tags Events
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Success 200 {object} []dto.Event
+// @Router /api/v1/events [get]
 func GetAllEvents(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, events)
 }
 
+// getEvent returns a single event
+//
+// @Summary Returns a single event by ID
+// @Description Returns a single event by ID
+// @Tags Events
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "Event ID"
+// @Success 200 {object} dto.Event
+// @Router /api/v1/events/{id} [get]
 func GetEvent(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -67,6 +105,18 @@ func GetEvent(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "event not found"})
 }
 
+// updateEvent updates a single event
+//
+// @Summary Updates a single event by ID
+// @Description Updates a single event by ID
+// @Tags Events
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "Event ID"
+// @Param event body dto.Event true "Event details"
+// @Success 200 {object} dto.Event
+// @Router /api/v1/events/{id} [put]
 func UpdateEvent(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -98,6 +148,17 @@ func UpdateEvent(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "event not found"})
 }
 
+// deleteEvent deletes a single event
+//
+// @Summary Deletes a single event by ID
+// @Description Deletes a single event by ID
+// @Tags Events
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "Event ID"
+// @Success 200 {object} gin.H
+// @Router /api/v1/events/{id} [delete]
 func DeleteEvent(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
