@@ -37,6 +37,9 @@ func (app *application) serve() error {
 	// API calls
 	// apiclient.Run()
 
+	// Cron jobs
+	// cronjobs.Run()
+
 	log.Printf("Starting %v server on port %d\n", config.APP_NAME, app.port)
 	return server.ListenAndServe()
 }
