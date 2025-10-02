@@ -31,6 +31,6 @@ func (app *application) serve() error {
 	// Initialize all repos once
 	repository.Init()
 
-	log.Printf("Starting server on port %d\n", app.port)
+	log.Printf("Starting %v server on port %d\n", config.APP_NAME, app.port)
 	return server.ListenAndServe()
 }

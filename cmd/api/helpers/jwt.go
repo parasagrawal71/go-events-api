@@ -59,10 +59,10 @@ func VerifyJWT(tokenStr string) (*Claims, error) {
 		return nil, err
 	}
 
-	// check token expiry
-	if time.Now().After(claims.ExpiresAt.Time) {
-		return nil, err
-	}
+	// // check token expiry
+	// if time.Now().After(claims.ExpiresAt.Time) {
+	// 	return nil, err
+	// }
 
 	return claims, nil
 }
