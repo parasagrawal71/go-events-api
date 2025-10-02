@@ -19,7 +19,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param user body dto.RegisterUser true "User details"
-// @Success 201 {object} models.User
+// @Success 201 {object} dto.User
 // @Router /api/v1/auth/register [post]
 func RegisterUser(c *gin.Context) {
 	var user dto.RegisterUser

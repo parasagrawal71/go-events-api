@@ -72,27 +72,25 @@ definitions:
         type: string
       name:
         type: string
-      owner_id:
-        type: integer
     type: object
-  models.User:
+  dto.User:
     properties:
       created_at:
-        description: custom column name, auto-set when inserting
         type: string
       email:
         type: string
       id:
-        description: auto-increment by default
         type: integer
       name:
         type: string
       updated_at:
-        description: auto-set when inserting/updating
         type: string
     required:
     - email
     - name
+    type: object
+  gin.H:
+    additionalProperties: {}
     type: object
 info:
   contact: {}
@@ -118,7 +116,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/gin.H'
       summary: Logs in a user
       tags:
       - Auth
@@ -140,7 +138,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/dto.User'
       summary: Registers a new user
       tags:
       - Auth

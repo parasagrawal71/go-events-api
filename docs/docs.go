@@ -43,7 +43,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/gin.H"
                         }
                     }
                 }
@@ -77,7 +77,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/dto.User"
                         }
                     }
                 }
@@ -375,13 +375,10 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "owner_id": {
-                    "type": "integer"
                 }
             }
         },
-        "models.User": {
+        "dto.User": {
             "type": "object",
             "required": [
                 "email",
@@ -389,24 +386,25 @@ const docTemplate = `{
             ],
             "properties": {
                 "created_at": {
-                    "description": "custom column name, auto-set when inserting",
                     "type": "string"
                 },
                 "email": {
                     "type": "string"
                 },
                 "id": {
-                    "description": "auto-increment by default",
                     "type": "integer"
                 },
                 "name": {
                     "type": "string"
                 },
                 "updated_at": {
-                    "description": "auto-set when inserting/updating",
                     "type": "string"
                 }
             }
+        },
+        "gin.H": {
+            "type": "object",
+            "additionalProperties": {}
         }
     },
     "securityDefinitions": {
