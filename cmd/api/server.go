@@ -26,6 +26,8 @@ func (app *application) serve() error {
 	}
 
 	// Connect to database
+	log.SetPrefix(fmt.Sprintf("[%v] ", config.APP_NAME))
+	log.Println("Connecting to database...")
 	config.ConnectDatabase()
 
 	// Initialize all repos once

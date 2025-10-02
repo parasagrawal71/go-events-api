@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-events-api/cmd/api/models"
 	"go-events-api/internal/env"
+	"log"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -54,5 +55,5 @@ func ConnectDatabase() {
 	db.AutoMigrate(&models.User{})
 
 	DB = db
-	fmt.Println("Database connected!")
+	log.Println("Database connected!")
 }
