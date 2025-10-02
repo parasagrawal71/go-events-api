@@ -1,0 +1,13 @@
+-> go test case 👈🏻
+-> go concurrency
+-> deployment
+-> migration
+-> separate handlers + services
+-> UUID
+
+
+Maybe?
+- gRPC from 'Building an Order Management System in Golang' video
+- deployment using Docker
+
+

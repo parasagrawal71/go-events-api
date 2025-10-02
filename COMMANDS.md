@@ -21,3 +21,9 @@ Command to generate docs:
 > which air OR air --version
 > air init
 > Then run, air
+
+
+#### Run test files
+> Go to folder and run, go test
+> Or, Go to folder and run, go test -run <TestFuncName>
+> Run from root folder, go test ./file/path/test_file_name.go
