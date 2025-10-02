@@ -118,7 +118,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            type: string
       summary: Logs in a user
       tags:
       - Auth

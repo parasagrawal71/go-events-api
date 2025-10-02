@@ -3,6 +3,7 @@ package apiHandler
 import (
 	"go-events-api/cmd/api/config"
 	"go-events-api/cmd/api/dto"
+	"go-events-api/cmd/api/helpers"
 	"go-events-api/cmd/api/models"
 	"go-events-api/cmd/api/repository"
 	"net/http"
@@ -50,7 +51,7 @@ func RegisterUser(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param user body dto.LoginUser true "User details"
-// @Success 200 {object} models.User
+// @Success 200 {object} gin.H
 // @Router /api/v1/auth/login [post]
 func LoginUser(c *gin.Context) {
 	var user dto.LoginUser
@@ -66,5 +67,11 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, userFromDB)
+	token, err := helpers.GenerateJWT(userFromDB)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, gin.H{"token": token})
 }

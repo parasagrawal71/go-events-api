@@ -1,7 +1,9 @@
 package middleware
 
 import (
-	"go-events-api/cmd/api/dto"
+	"go-events-api/cmd/api/config"
+	"go-events-api/cmd/api/helpers"
+	"go-events-api/cmd/api/models"
 	"net/http"
 	"strings"
 
@@ -18,25 +20,29 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		parts := strings.Fields(authHeader)
-		if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
+		if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" || parts[1] == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Bearer token is required"})
 			return
 		}
 
-		/*
-			More things to check here:
-			- Token signature is valid
-			- Token is not expired, etc
-			- Check if user exists in database, check if user account is ACTIVE
-			- Set user in context
-		*/
-
-		user := dto.User{
-			ID:    1,
-			Name:  "Paras Agrawal",
-			Email: "paras.agrawal@gmail.com",
+		// Verify JWT token
+		token := parts[1]
+		claims, err := helpers.VerifyJWT(token)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
 		}
-		c.Set("user", user)
+
+		// check if user exists
+		var user models.User
+		config.DB.Raw("SELECT * FROM users WHERE id = ?;", claims.User.ID).Scan(&user)
+		if user.ID == 0 {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user not registered"})
+			return
+		}
+
+		// Set user in context
+		c.Set("user", claims.User)
 
 		c.Next()
 	}
