@@ -7,7 +7,7 @@
 
 
 Maybe?
-- gRPC from 'Building an Order Management System in Golang' video
+- gRPC from 'Building an Order Management System in Golang' video (https://youtu.be/KdnxzgSNLTU?si=fDMD_73-7B0Um-ER)
 - deployment using Docker
 
 
