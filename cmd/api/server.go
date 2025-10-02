@@ -34,6 +34,9 @@ func (app *application) serve() error {
 	// Run file operations
 	// fileio.Run()
 
+	// API calls
+	// apiclient.Run()
+
 	log.Printf("Starting %v server on port %d\n", config.APP_NAME, app.port)
 	return server.ListenAndServe()
 }
