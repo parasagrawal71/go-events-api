@@ -1,16 +1,16 @@
 package appContext
 
 import (
-	"go-events-api/cmd/api/dto"
+	"go-events-api/cmd/api/helpers"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetUserFromContext(c *gin.Context) dto.User {
+func GetUserFromContext(c *gin.Context) helpers.User {
 	user, exist := c.Get("user")
 	if !exist {
-		return dto.User{}
+		return helpers.User{}
 	}
 
-	return user.(dto.User)
+	return user.(helpers.User)
 }

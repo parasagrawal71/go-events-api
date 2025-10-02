@@ -2,6 +2,7 @@ package apiHandler
 
 // The func names must be capital to export them
 import (
+	"go-events-api/cmd/api/config"
 	appContext "go-events-api/cmd/api/context"
 	"go-events-api/cmd/api/dto"
 	"go-events-api/cmd/api/models"
@@ -35,6 +36,12 @@ func CreateEvent(c *gin.Context) {
 		return
 	}
 
+	userFromDB, err := repository.UserRepo.GetByID(newEvent.OwnerID)
+	if err != nil || userFromDB == nil || userFromDB.ID == 0 {
+		c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "user not found"})
+		return
+	}
+
 	user := appContext.GetUserFromContext(c)
 
 	eventToCreate := models.Event{
@@ -45,7 +52,14 @@ func CreateEvent(c *gin.Context) {
 		OwnerID:     user.ID,
 	}
 
-	createdEvent, err := repository.EventRepo.Create(&eventToCreate)
+	_, err = repository.EventRepo.Create(&eventToCreate)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	var createdEvent models.Event
+	err = config.DB.Preload("Owner").Find(&createdEvent).Error
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

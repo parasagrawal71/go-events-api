@@ -5,5 +5,4 @@ type UpdateEvent struct {
 	Description string `json:"description" binding:"min=10"`
 	Date        string `json:"date"`
 	Location    string `json:"location"`
-	OwnerID     uint   `json:"owner_id"`
 }

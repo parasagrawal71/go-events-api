@@ -30,7 +30,7 @@ func GenerateJWT(user models.User) (string, error) {
 			Email: user.Email,
 		},
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)), // expires in 1 hr
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // expires in 24 hr
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			Issuer:    config.APP_NAME,
 		},
