@@ -3,7 +3,7 @@
 <br />
 
 <div align="center">
-  <a href="https://github.com/parasagrawal71/twitter-helpdesk">
+  <a href="https://github.com/parasagrawal71/go-events-api">
     <img src="assets/go_logo_blue.png" alt="Logo" width="40" height="40">
   </a>
   <h3 align="center">Go Events API</h3>
@@ -12,9 +12,9 @@
   <!-- <a href=""><strong>Explore the docs »</strong></a>
   <br />
   <br /> -->
-  <!-- <a href="https://twitter-helpdesk-app.web.app">Visit website</a>
+  <!-- <a href="">Visit website</a>
   ·
-  <a href="https://drive.google.com/file/d/10yPXMO4IyYN8l1xC6_fzNEaGxLOrtCc_/view">Watch Video</a> -->
+  <a href="">Watch Video</a> -->
   </p>
 </div>
 
