@@ -42,6 +42,8 @@
 
 A RESTful API built with GoLang, providing secure authentication (register & login) endpoints and full CRUD operations for event management. Implements structured request validation, token-based authentication, and clean architecture principles.
 
+<br />
+
 ### Features
 
 - Auth APIs to register and login
